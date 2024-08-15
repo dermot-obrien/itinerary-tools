@@ -1,0 +1,70 @@
+plugins {
+    id "java"
+    id "maven-publish"
+    id "name.remal.lombok" version "2.2.6"
+}
+
+group = 'org.dobrien'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+def log4j_version = '2.20.0'
+def poi_version = '5.2.3'
+def junit_jupiter_version = '5.10.1'
+def junit_platform_launcher_version = '1.10.1'
+def hamcrest_version = '2.2'
+def lombokVersion = '1.18.32'
+def googleVersion = '1.23.0'
+def slf4jVersion = '1.7.30'
+
+dependencies {
+
+    implementation "org.apache.logging.log4j:log4j-core:${log4j_version}"
+    implementation "org.apache.logging.log4j:log4j-api:${log4j_version}"
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
+
+    implementation "com.google.api-client:google-api-client:${googleVersion}"
+    implementation "org.apache.poi:poi:${poi_version}"
+    implementation "org.apache.poi:poi-ooxml:${poi_version}"
+
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junit_jupiter_version}"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:${junit_jupiter_version}"
+    testImplementation "org.junit.platform:junit-platform-launcher:${junit_platform_launcher_version}"
+    testImplementation "org.hamcrest:hamcrest:${hamcrest_version}"
+}
+
+sourceSets.main.java.srcDirs += ['src/main/generated/java']
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.implementation
+}
+
+tasks.jar {
+    from(sourceSets["test"].output)
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId =  project.group
+            artifactId = project.name
+            version = project.version
+
+            from components.java
+        }
+    }
+}
